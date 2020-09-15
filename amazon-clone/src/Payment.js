@@ -1,4 +1,6 @@
-import React from "react";
+import { useElements, useStripe, CardElement } from "@stripe/react-stripe-js";
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import CheckoutProduct from "./CheckoutProduct";
 import "./Payment.css";
 import { useStateValue } from "./StateProvider";
@@ -6,9 +8,31 @@ import { useStateValue } from "./StateProvider";
 function Payment() {
   const [{ basket, user }, dispatch] = useStateValue();
 
+  const stripe = useStripe();
+  const elements = useElements();
+
+  const [error, setError] = useState(null);
+  const [processing, setProcessing] = useState("");
+  const [disabled, setDisabled] = useState(true);
+
+  const handleSubmit = (e) => {
+    // do all the fancy stripe stuff
+  };
+
+  const handleChange = (event) => {
+    // listen for changes in the CardElement and
+    // display any errors as the customer types their card details
+    setDisabled(event.empty);
+    setError(event.error ? event.error.message : "");
+  };
+
   return (
     <div className='payment'>
       <div className='payment__container'>
+        <h1>
+          Checkout (<Link to='/checkout'>{basket?.length} items</Link>)
+        </h1>
+
         {/* payment section - delivery address */}
         <div className='payment__section'>
           <div className='payment__title'>
@@ -16,7 +40,7 @@ function Payment() {
           </div>
           <div className='payment__address'>
             <p>{user?.email}</p>
-            <p>123 Fake Lane</p>
+            <p>123 React Lane</p>
             <p>Washington, DC</p>
           </div>
         </div>
@@ -40,7 +64,18 @@ function Payment() {
         </div>
 
         {/* payment section - Payment Method */}
-        <div className='payment__section'></div>
+        <div className='payment__section'>
+          <div className='payment__title'>
+            <h3>Payment Method</h3>
+          </div>
+          <div className='payment__details'>
+            {/* stripe magic goes here */}
+
+            <form onClick={handleSubmit}>
+              <CardElement onChange={handleChange} />
+            </form>
+          </div>
+        </div>
       </div>
     </div>
   );
